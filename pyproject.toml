@@ -1,0 +1,12 @@
+[project]
+name = "clipboard-dongle"
+version = "0.1.0"
+description = "HID keyboard device to paste clipboard contents from another device"
+readme = "README.md"
+requires-python = ">=3.11.1"
+dependencies = [
+    "adafruit-circuitpython-hid>=6.1.8",
+    "adafruit-circuitpython-httpserver>=4.7.1",
+    "circuitpython-stubs>=10.0.3",
+    "circup>=2.3.0",
+]
