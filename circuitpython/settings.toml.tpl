@@ -1,0 +1,11 @@
+NAME="Clipboard Dongle"
+
+AP_SSID="clipboard-dongle"
+AP_PASSWORD="********"
+
+SERVER_HOSTNAME="clipboard-dongle"
+SERVER_PORT=80
+
+_CIRCUITPY_WIFI_SSID=""
+_CIRCUITPY_WIFI_PASSWORD="********"
+CIRCUITPY_WEB_API_PORT=8080

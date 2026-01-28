@@ -1,4 +1,4 @@
-HTML = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -123,6 +123,20 @@ HTML = """<!DOCTYPE html>
             document.getElementById('textInput').focus();
         }
 
+        // Handle paste events to prevent URL encoding
+        document.getElementById('textInput').addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedText = (e.clipboardData || window.clipboardData).getData('text/plain');
+            const textarea = e.target;
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            // Insert the plain text at cursor position
+            textarea.value = text.substring(0, start) + pastedText + text.substring(end);
+            // Set cursor position after pasted text
+            textarea.selectionStart = textarea.selectionEnd = start + pastedText.length;
+        });
+
         document.getElementById('textForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const text = document.getElementById('textInput').value;
@@ -158,4 +172,3 @@ HTML = """<!DOCTYPE html>
     </script>
 </body>
 </html>
-"""
