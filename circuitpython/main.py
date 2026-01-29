@@ -45,10 +45,6 @@ def save_replacements(replacements):
             f.write(f'{k} {v}\n')
 
 ########################################################################################################################
-with open('main.html', 'r') as f:
-    html_template = f.read()
-html_content = html_template.replace('{NAME}', name)
-
 MIMETypes.configure(
     default_to="text/plain",
     keep_for=[".html", ".css", ".js", ".png"],
@@ -63,11 +59,6 @@ mdns_server.advertise_service(service_type="_http", protocol="_tcp", port=srv_po
 wifi.radio.start_ap(ssid=ap_ssid, password=ap_password)
 
 ########################################################################################################################
-@server.route("/")
-def root(request: Request):
-    return Response(request, html_content, content_type="text/html")
-
-
 @server.route("/submit", methods=["POST"])
 def submit(request: Request):
     try:

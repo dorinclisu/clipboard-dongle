@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clipboard Dongle</title>
+  <link rel="icon" type="image/png" href="./clipboard.png">
+  <link rel="apple-touch-icon" href="./clipboard.png">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Clipboard Dongle</h1>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('clipboard')">Clipboard</button>
+      <button class="tab" onclick="switchTab('replacements')">Replacements</button>
+    </div>
+
+    <div id="clipboard-tab" class="tab-content active">
+      <form id="textForm">
+        <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+        <div class="button-group">
+          <button type="submit" class="submit-btn">Send</button>
+          <button type="button" class="clear-btn" onclick="clearText()">Clear</button>
+        </div>
+      </form>
+      <div id="message" class="message"></div>
+    </div>
+
+    <div id="replacements-tab" class="tab-content">
+      <table class="replacements-table" id="replacementsTable">
+        <thead>
+          <tr>
+            <th>Character</th>
+            <th>Replacement</th>
+            <th>...</th>
+          </tr>
+        </thead>
+        <tbody id="replacementsBody">
+        </tbody>
+      </table>
+      <div class="button-group">
+        <button type="button" class="add-row-btn" onclick="addReplacementRow()">Add Row</button>
+        <button type="button" class="save-btn" onclick="saveReplacements()">Save</button>
+      </div>
+      <div id="replacements-message" class="message"></div>
+    </div>
+
+    <div class="footer">
+      Made by <a href="https://github.com/dorinclisu" target="_blank">Dorin Clisu</a>
+    </div>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>
