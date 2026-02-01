@@ -12,7 +12,7 @@ from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS
 from adafruit_httpserver import MIMETypes, Request, Response, Server, status
 
 import pins
-
+from dns_captive import DNSCaptiveServer
 
 
 ap_ssid = os.getenv('AP_SSID', 'Clipboard Dongle')
@@ -26,7 +26,7 @@ led = digitalio.DigitalInOut(pins.led_g)
 led.switch_to_output()
 
 keyboard = Keyboard(usb_hid.devices)
-keyboard_layout = KeyboardLayoutUS(keyboard)
+layout = KeyboardLayoutUS(keyboard)
 
 def load_replacements():
     with open('/replace.csv', 'r') as f:
@@ -39,7 +39,7 @@ def load_replacements():
             yield key, val
 
 def save_replacements(replacements):
-    time.sleep(1)
+    time.sleep(0.5)
     with open('/replace.csv', 'w') as f:
         for k, v in replacements.items():
             f.write(f'{k} {v}\n')
@@ -56,7 +56,27 @@ mdns_server = mdns.Server(wifi.radio)
 mdns_server.hostname = srv_hostname
 mdns_server.advertise_service(service_type="_http", protocol="_tcp", port=srv_port)
 
+dns_server = DNSCaptiveServer(pool, '192.168.4.1')
+dns_server.start()
+
 wifi.radio.start_ap(ssid=ap_ssid, password=ap_password)
+while not wifi.radio.ipv4_address_ap:
+    time.sleep(0.1)
+dns_server.set_captive_address(str(wifi.radio.ipv4_address_ap))
+
+########################################################################################################################
+# Captive portal detection endpoints - redirect to main page to trigger portal popup
+@server.route("/hotspot-detect.html", methods=["GET"])  # Apple iOS/macOS
+@server.route("/library/test/success.html", methods=["GET"])  # Apple iOS
+@server.route("/generate_204", methods=["GET"])  # Android
+@server.route("/gen_204", methods=["GET"])  # Android
+def captive_portal_detect(request: Request):
+    return Response(
+        request,
+        "",
+        status=status.TEMPORARY_REDIRECT_307,
+        headers={"Location": f"http://{dns_server.ip_address}/"}
+    )
 
 ########################################################################################################################
 @server.route("/submit", methods=["POST"])
@@ -70,7 +90,7 @@ def submit(request: Request):
                 return Response(request, "Non-ASCII character: " + char, content_type="text/plain", status=status.BAD_REQUEST_400)
 
         led.value = True
-        keyboard_layout.write(text)
+        layout.write(text)
         led.value = False
         return Response(request, "OK", content_type="text/plain")
 
@@ -107,4 +127,8 @@ def update_replacements(request: Request):
         return Response(request, str(e), content_type="text/plain", status=status.INTERNAL_SERVER_ERROR_500)
 
 ########################################################################################################################
-server.serve_forever(port=srv_port)
+server.start(port=srv_port)
+
+while True:
+    server.poll()
+    dns_server.process_request()
