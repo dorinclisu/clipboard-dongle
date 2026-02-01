@@ -19,4 +19,4 @@ if update_enabled:
 else:
     storage.remount('/', readonly=False)
     storage.disable_usb_drive()
-    usb_cdc.enable(console=False, data=True)
+    usb_cdc.enable(console=False, data=True)  # disable console due to insufficient USB endpoints on ESP32-S3

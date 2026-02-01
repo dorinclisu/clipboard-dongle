@@ -6,9 +6,10 @@ HID keyboard device to paste clipboard contents from another device.
 - Circuitpython device embeds WiFi AP and a simple web page to input the text.
 
 # TODO
-- Captive portal (DNS implementation)
-    - Validate text before writing
-    - Propose replacement table for characters
-- Configurable AP name and password
-- Configurable wifi client
-- Reset to defaults with button
+- [x] Captive portal (DNS implementation)
+- [x] Validate text before writing
+- [x] Propose replacement table for characters
+- [] Configurable AP name and password
+- [] Configurable wifi client
+- [] Support multiple boards
+- [] Reset to defaults with button
