@@ -1,6 +1,6 @@
 NAME="Clipboard Dongle"
 
-AP_SSID="clipboard-dongle"
+AP_SSID="clipboard-dongle-****"
 AP_PASSWORD="********"
 
 SERVER_HOSTNAME="clipboard-dongle"
