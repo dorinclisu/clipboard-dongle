@@ -19,7 +19,14 @@
 
     <div id="clipboard-tab" class="tab-content active">
       <form id="textForm">
+        <div class="options-row">
+          <label><input type="checkbox" id="replaceChars" checked> Replace non-ASCII characters</label>
+        </div>
         <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+        <div class="method-selector">
+          <label><input type="radio" name="method" value="hid" checked> Keyboard </label>
+          <label><input type="radio" name="method" value="serial"> Clipboard Copy </label>
+        </div>
         <div class="button-group">
           <button type="submit" class="submit-btn">Send</button>
           <button type="button" class="clear-btn" onclick="clearText()">Clear</button>

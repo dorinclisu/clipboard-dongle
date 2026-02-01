@@ -9,4 +9,7 @@ dependencies = [
     "adafruit-circuitpython-httpserver>=4.7.1",
     "circuitpython-stubs>=10.0.3",
     "circup>=2.3.0",
+    "pyinstaller>=6.18.0",
+    "pyperclip>=1.11.0",
+    "pyserial>=3.5",
 ]

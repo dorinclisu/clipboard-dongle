@@ -1,5 +1,60 @@
 const replacements = {};
 
+function getTransferMethod() {
+  return localStorage.getItem('transferMethod') || 'hid';
+}
+
+function setTransferMethod(method) {
+  localStorage.setItem('transferMethod', method);
+}
+
+function getReplaceEnabled() {
+  const saved = localStorage.getItem('replaceEnabled');
+  return saved === null ? true : saved === 'true';
+}
+
+function setReplaceEnabled(enabled) {
+  localStorage.setItem('replaceEnabled', enabled);
+}
+
+function updateReplaceCheckbox() {
+  const method = getTransferMethod();
+  const checkbox = document.getElementById('replaceChars');
+  if (method === 'hid') {
+    checkbox.checked = true;
+    checkbox.disabled = true;
+  } else {
+    checkbox.disabled = false;
+    checkbox.checked = getReplaceEnabled();
+  }
+}
+
+function isReplaceEnabled() {
+  return document.getElementById('replaceChars').checked;
+}
+
+function initMethodSelector() {
+  const savedMethod = getTransferMethod();
+  const radio = document.querySelector(`input[name="method"][value="${savedMethod}"]`);
+  if (radio) radio.checked = true;
+
+  document.querySelectorAll('input[name="method"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      setTransferMethod(e.target.value);
+      updateReplaceCheckbox();
+      if (e.target.value === 'serial') {
+        showMessage('message', 'Clipboard Copy requires host software to be running', 'info');
+      }
+    });
+  });
+
+  document.getElementById('replaceChars').addEventListener('change', (e) => {
+    setReplaceEnabled(e.target.checked);
+  });
+
+  updateReplaceCheckbox();
+}
+
 function switchTab(tabName) {
   // Hide all tabs
   document.querySelectorAll('.tab-content').forEach(tab => {
@@ -144,22 +199,23 @@ function clearText() {
 document.getElementById('textInput').addEventListener('paste', function(e) {
   e.preventDefault();
   const pastedText = (e.clipboardData || window.clipboardData).getData('text/plain');
-  const normalizedText = normalizeToAscii(pastedText);
+  const processedText = isReplaceEnabled() ? normalizeToAscii(pastedText) : pastedText;
   const textarea = e.target;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const text = textarea.value;
-  // Insert the normalized text at cursor position
-  textarea.value = text.substring(0, start) + normalizedText + text.substring(end);
+  // Insert the processed text at cursor position
+  textarea.value = text.substring(0, start) + processedText + text.substring(end);
   // Set cursor position after pasted text
-  textarea.selectionStart = textarea.selectionEnd = start + normalizedText.length;
+  textarea.selectionStart = textarea.selectionEnd = start + processedText.length;
 });
 
 document.getElementById('textForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const text = document.getElementById('textInput').value;
+  const method = getTransferMethod();
 
-  fetch('/submit', {
+  fetch(`/submit?method=${method}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'text/plain'
@@ -179,3 +235,6 @@ document.getElementById('textForm').addEventListener('submit', function(e) {
     showMessage('message', error.message, 'error');
   });
 });
+
+// Initialize method selector on page load
+initMethodSelector();

@@ -1,6 +1,7 @@
 import digitalio
 import storage
 import time
+import usb_cdc
 
 import pins
 
@@ -18,3 +19,4 @@ if update_enabled:
 else:
     storage.remount('/', readonly=False)
     storage.disable_usb_drive()
+    usb_cdc.enable(console=False, data=True)

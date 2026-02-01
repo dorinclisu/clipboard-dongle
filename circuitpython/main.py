@@ -4,6 +4,7 @@ import mdns
 import os
 import socketpool
 import time
+import usb_cdc
 import usb_hid
 import wifi
 
@@ -79,19 +80,39 @@ def captive_portal_detect(request: Request):
     )
 
 ########################################################################################################################
-@server.route("/submit", methods=["POST"])
+@server.route("/submit", methods=["POST"])  # query param: ?method=serial or ?method=hid (default: hid)
 def submit(request: Request):
     try:
-        text = request.body.decode('utf-8')
-        print(f'Submitted: "{text[:64]}..."')
+        # Get method from query parameter: ?method=serial or ?method=hid (default: hid)
+        method = request.query_params.get('method', 'hid')
 
-        for char in text:
-            if ord(char) > 127:
-                return Response(request, "Non-ASCII character: " + char, content_type="text/plain", status=status.BAD_REQUEST_400)
+        if method == 'hid':
+            text = request.body.decode('utf-8')
+            print(f'Submitted: "{text[:64]}..."')
 
-        led.value = True
-        layout.write(text)
-        led.value = False
+            for char in text:
+                if ord(char) > 127:
+                    return Response(request, "Non-ASCII character: " + char, content_type="text/plain", status=status.BAD_REQUEST_400)
+
+            led.value = True
+            layout.write(text)
+            led.value = False
+
+        elif method == 'serial':
+            if not (usb_cdc.data and usb_cdc.data.connected):
+                return Response(request, "USB serial not connected. Is the host software running?", content_type="text/plain", status=status.INTERNAL_SERVER_ERROR_500)
+
+            led.value = True
+            usb_cdc.data.write(b'<<<BEGIN>>>\n')
+            usb_cdc.data.write(f'{len(request.body)}\n'.encode())
+            usb_cdc.data.write(request.body)
+            usb_cdc.data.write(b'<<<END>>>\n')
+            usb_cdc.data.flush()
+            led.value = False
+            print(f"Sent {len(request.body)} bytes via serial")
+        else:
+            return Response(request, f'Unknown method: {method}', content_type="text/plain", status=status.BAD_REQUEST_400)
+
         return Response(request, "OK", content_type="text/plain")
 
     except Exception as e:
